@@ -1,7 +1,7 @@
 # Northwind Traders — SQL Window Functions & CTE Project
 
 > ⚠️ **Status: NOT YET FINISHED — work in progress, keep continuing.**
-> Last updated: 2026-08-14.
+> Last updated: 2026-08-14 (added "How to Run" DE setup section).
 > See the [Status](#-status) section below for the current checklist.
 
 ## 🎯 Overview
@@ -185,6 +185,139 @@ that separates a random `SELECT` from a properly modeled analytic query.
 
 ---
 
+## 🚀 How to Run — Data Engineering Setup
+
+This is the **DE (Data Engineering) part** of the project: stand up the database,
+load the Northwind data, and connect your query tool of choice. Once it's running,
+you can run queries **two ways** — pick whichever fits what you're doing:
+
+| Option | Tool | Best for |
+|---|---|---|
+| **1 — pgAdmin** (web GUI) | [`http://localhost:5050`](http://localhost:5050) | Browsing schema, saving `.sql` scripts, ad-hoc inspection, ER diagrams |
+| **2 — Jupyter Notebook** (`eda-northwind-traders.ipynb`) | Local notebook (psycopg + pandas) | Exploring data, iterating on queries, seeing results as DataFrames |
+
+Both options point at the **same Dockerized PostgreSQL** — they don't conflict.
+
+### Prerequisites
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows / Mac / Linux)
+- (Optional, for option 2) [Python 3.10+](https://www.python.org/) with `psycopg` and `pandas`
+  installed (a `.venv/` is included in this repo — activate it instead of installing globally)
+
+### Step 1 — Start the database
+
+From the project root:
+
+```bash
+docker compose up -d
+```
+
+This starts **two containers** defined in `docker-compose.yml`:
+
+| Container | Image | Exposed port | Purpose |
+|---|---|---|---|
+| `northwind_db` | `postgres:17-alpine` | host `55432` → container `5432` | The PostgreSQL database (auto-seeds with `northwind.sql` on first run) |
+| `northwind_pgadmin` | `dpage/pgadmin4:latest` | host `5050` → container `80` | The pgAdmin web GUI |
+
+Connection facts (saved you from re-typing them):
+
+```
+Host:     localhost   (from your machine)   /   db   (from inside the docker network)
+Port:     55432       (from your machine)   /   5432  (from inside the docker network)
+User:     postgres
+Password: postgres
+Database: northwind
+```
+
+> ⚠️ On **first** startup, the `db` container executes `./northwind.sql` (mounted at
+> `/docker-entrypoint-initdb.d/`) which creates all 14 tables and loads the sample
+> data. This takes ~5–10 seconds. Subsequent startups skip this because the data
+> persists in the `postgresql_data` named volume.
+
+Verify it's up:
+
+```bash
+docker ps
+# You should see northwind_db and northwind_pgadmin with status "Up" / "healthy"
+```
+
+### Step 2 — Connect via Option 1 (pgAdmin) **or** Option 2 (Jupyter)
+
+#### Option 1 — pgAdmin (web GUI)
+
+Open [`http://localhost:5050`](http://localhost:5050) in your browser and log in:
+
+| Field | Value |
+|---|---|
+| Email | `admin@admin.com` |
+| Password | `admin` |
+
+Then register the database server inside pgAdmin:
+
+1. Right-click **Servers** → **Register** → **Server…**
+2. **General** tab:
+   - **Name** = `db` (or anything you like — this is just a label inside pgAdmin)
+3. **Connection** tab:
+   - **Host name/address** = `db` (the Docker service name — pgAdmin is on the same network)
+   - **Port** = `5432`
+   - **Maintenance database** = `northwind`
+   - **Username** = `postgres`
+   - **Password** = `postgres`
+4. Click **Save**. You'll see the `northwind` database with 14 tables.
+
+You can now run queries: click **Tools** → **Query Tool** (or `Alt+Shift+Q`), type SQL,
+hit **F5** to execute. Save queries as `.sql` files for the `queries.sql` deliverable.
+
+#### Option 2 — Jupyter Notebook
+
+The notebook `eda-northwind-traders.ipynb` connects to the same database via `psycopg`.
+The connection cell uses these credentials:
+
+```python
+CONN = psycopg.connect(
+    "postgresql://postgres:postgres@localhost:55432/northwind",
+    autocommit=True,
+)
+```
+
+Note the host is `localhost:55432` here — the notebook runs **on your machine**,
+so it goes through the published port (not the internal Docker network name `db`).
+
+To use it:
+
+```bash
+# 1. Activate the project's venv (already created)
+.venv\Scripts\activate            # Windows (PowerShell or CMD)
+source .venv/bin/activate         # macOS / Linux
+
+# 2. Start Jupyter
+jupyter lab                       # or: jupyter notebook
+```
+
+Then open `eda-northwind-traders.ipynb`, run the cells, and edit the SQL inside
+the `run_query("""...""")` helpers. Results come back as pandas DataFrames.
+
+> 💡 **Which should I pick?** pgAdmin for "I know what I want to query, give me
+> a SQL editor." Notebook for "I want to see results as a DataFrame, plot them,
+> iterate quickly without leaving Python."
+
+### Step 3 — Stop the database
+
+```bash
+docker compose down
+```
+
+This stops both containers. **Data is preserved** (it lives in the `postgresql_data`
+named volume, not inside the container).
+
+To stop **and** wipe the data (start fresh next time):
+
+```bash
+docker compose down -v
+```
+
+---
+
 ## 🧰 Tech Stack
 
 | Layer | Tool |
@@ -194,6 +327,11 @@ that separates a random `SELECT` from a properly modeled analytic query.
 | GUI (manage DB) | pgAdmin 4 (`http://localhost:5050`) — browse schema, save `.sql` |
 | Exploration | Jupyter Notebook + `psycopg` + `pandas` (port `55432`) |
 | CLI | `psql` inside the container |
+
+> 👉 For step-by-step setup (how to start the containers, register the server in
+> pgAdmin, connect the notebook), see the
+> [**How to Run — Data Engineering Setup**](#-how-to-run--data-engineering-setup)
+> section above.
 
 ## 🧭 Workflow Split
 
