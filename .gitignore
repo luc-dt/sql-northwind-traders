@@ -1,0 +1,26 @@
+# --- Local / learning artifacts (never commit) ---
+docker-compose-learn.yml
+
+# --- Python / uv ---
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+uv.lock
+
+# --- Virtual environments (general) ---
+venv/
+env/
+
+# --- Docker (container data lives in Docker volumes, not repo) ---
+# (northwind.sql and docker-compose.yml are intentionally tracked)
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+plan.md
