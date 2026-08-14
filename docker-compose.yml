@@ -1,0 +1,44 @@
+# Northwind Traders — run: docker compose up -d
+services:
+  # Service 1: PostgreSQL database
+  db:
+    image: postgres:17-alpine
+    container_name: northwind_db
+    environment:
+      POSTGRES_DB: northwind
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "55432:5432"
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+      # Auto-executes schema/data setup on first startup:
+      - ./northwind.sql:/docker-entrypoint-initdb.d/northwind.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d northwind"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - northwind_network
+  # Service 2: pgAdmin — web-based GUI for the database
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: northwind_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - northwind_network
+
+volumes:
+  postgresql_data:
+
+networks:
+  northwind_network:
+    driver: bridge
