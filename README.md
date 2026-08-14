@@ -1,5 +1,9 @@
 # Northwind Traders — SQL Window Functions & CTE Project
 
+> ⚠️ **Status: NOT YET FINISHED — work in progress, keep continuing.**
+> Last updated: 2026-08-14.
+> See the [Status](#-status) section below for the current checklist.
+
 ## 🎯 Overview
 
 A hands-on data analysis project using the **Northwind Traders** database - an
@@ -245,14 +249,18 @@ sql-northwind-traders/
 
 ## ✅ Status
 
+> ⚠️ **The project is NOT yet finished.** Items marked 🟡 or ⬜ are still open.
+> Continues in a later session.
+
 | Phase | Deliverable | Status |
 |-------|-------------|--------|
 | Plan | `plan.md` | ✅ Done |
-| Diary | `diary.md` | 🟡 In progress (updated each session) |
+| Diary | `diary.md` | ⬜ Not started |
 | DB setup | Containers running, schema + data loaded | ✅ Done (14 tables; see diary) |
 | Exploration | `eda-northwind-traders.ipynb` | 🟡 In progress |
 | Core queries | `queries.sql` | ⬜ Pending |
 | Final insights | `analysis.md` | ⬜ Pending |
+| Repository | Initialized + pushed to GitHub | ✅ Done |
 
 ---
 
