@@ -1,6 +1,9 @@
 # --- Local / learning artifacts (never commit) ---
 docker-compose-learn.yml
 
+# --- Streamlit ---
+.streamlit/
+
 # --- Python / uv ---
 .venv/
 __pycache__/
@@ -24,3 +27,7 @@ Thumbs.db
 .vscode/
 
 plan.md
+.neon
+.env
+.env.local
+.env.*
