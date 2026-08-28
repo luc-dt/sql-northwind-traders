@@ -1,8 +1,8 @@
 # Northwind Traders — SQL Window Functions & CTE Project
 
-> ⚠️ **Status: NOT YET FINISHED — work in progress, keep continuing.**
-> Last updated: 2026-08-14 (added "How to Run" DE setup section).
-> See the [Status](#-status) section below for the current checklist.
+> ✅ **Status: COMPLETED** — all phases done (DB setup, exploration, window functions & CTEs, deliverables).
+> Last updated: 2026-08-28 (project finished — added `queries.sql` + `analysis.md`).
+> See the [Status](#-status) section below for the full checklist.
 
 ## 🎯 Overview
 
@@ -387,17 +387,16 @@ sql-northwind-traders/
 
 ## ✅ Status
 
-> ⚠️ **The project is NOT yet finished.** Items marked 🟡 or ⬜ are still open.
-> Continues in a later session.
+> ✅ **The project is COMPLETE.** All phases below are done.
 
 | Phase | Deliverable | Status |
 |-------|-------------|--------|
 | Plan | `plan.md` | ✅ Done |
-| Diary | `diary.md` | ⬜ Not started |
+| Diary | `diary.md` | ✅ Done |
 | DB setup | Containers running, schema + data loaded | ✅ Done (14 tables; see diary) |
-| Exploration | `eda-northwind-traders.ipynb` | 🟡 In progress |
-| Core queries | `queries.sql` | ⬜ Pending |
-| Final insights | `analysis.md` | ⬜ Pending |
+| Exploration | `eda-northwind-traders.ipynb` | ✅ Done |
+| Core queries | `queries.sql` | ✅ Done |
+| Final insights | `analysis.md` | ✅ Done |
 | Repository | Initialized + pushed to GitHub | ✅ Done |
 
 ---
