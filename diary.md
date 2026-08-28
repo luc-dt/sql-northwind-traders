@@ -1,6 +1,6 @@
 # Learning Diary — SQL Window Functions & CTE Project
 
-> **Analyst:** [Your Name]
+> **Analyst:** LN - Data Analyst
 > **Project:** Northwind Traders — Window Functions & CTEs
 > **Purpose:** Log what worked, what didn't, and what I learned — turning mistakes into growth.
 

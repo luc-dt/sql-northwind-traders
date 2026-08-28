@@ -108,7 +108,7 @@ LaggedSales AS (
 SELECT
     Year,
     Month,
-    ((TotalSales - PreviousMonthSales) / PreviousMonthSales) * 100 AS "Growth Rate"
+    ((TotalSales - PreviousMonthSales) / NULLIF(PreviousMonthSales, 0)) * 100 AS "Growth Rate"
 FROM LaggedSales
 ORDER BY Year, Month;
 -- ============================================================================

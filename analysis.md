@@ -1,7 +1,7 @@
 # Northwind Traders — Analysis Report (for Management)
 
 > **Prepared by:** LN - Data Analyst
-> **Date:** [Today's date]
+> **Date:** 2026-08-28
 > **Source:** Queries in `queries.sql` run against the Northwind PostgreSQL database.
 > **Period covered:** July 1996 – May 1998 (23 months of sales).
 

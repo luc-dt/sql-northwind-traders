@@ -45,21 +45,47 @@ IS_DARK = st.session_state.theme == "dark"
 DB_URL = st.secrets.get("DB_URL", os.getenv("DB_URL", "postgresql://postgres:postgres@localhost:55432/northwind"))
 
 
-@st.cache_resource
 def get_connection():
-    """Persistent DB connection (cached across reruns)."""
-    return psycopg.connect(DB_URL, autocommit=True)
+    """Get an active DB connection, reconnecting if closed."""
+    if "db_conn" not in st.session_state or st.session_state.db_conn.closed:
+        st.session_state.db_conn = psycopg.connect(DB_URL, autocommit=True)
+    else:
+        try:
+            with st.session_state.db_conn.cursor() as cur:
+                cur.execute("SELECT 1;")
+        except Exception:
+            try:
+                st.session_state.db_conn.close()
+            except Exception:
+                pass
+            st.session_state.db_conn = psycopg.connect(DB_URL, autocommit=True)
+    return st.session_state.db_conn
 
 
 @st.cache_data(ttl=300)
 def run_query(sql: str) -> pd.DataFrame:
     """Run a SQL query and return as DataFrame. Cached for 5 minutes."""
-    conn = get_connection()
-    with conn.cursor() as cur:
-        cur.execute(sql)
-        rows = cur.fetchall()
-        cols = [d.name for d in cur.description] if cur.description else []
-    return pd.DataFrame(rows, columns=cols)
+    try:
+        conn = get_connection()
+        with conn.cursor() as cur:
+            cur.execute(sql)
+            rows = cur.fetchall()
+            cols = [d.name for d in cur.description] if cur.description else []
+        return pd.DataFrame(rows, columns=cols)
+    except Exception:
+        # Re-establish connection once on any dropped or closed connection error
+        if "db_conn" in st.session_state:
+            try:
+                st.session_state.db_conn.close()
+            except Exception:
+                pass
+            del st.session_state.db_conn
+        conn = get_connection()
+        with conn.cursor() as cur:
+            cur.execute(sql)
+            rows = cur.fetchall()
+            cols = [d.name for d in cur.description] if cur.description else []
+        return pd.DataFrame(rows, columns=cols)
 
 
 # ============================================================================
@@ -636,9 +662,13 @@ st.markdown("<div style='height: 0.8rem'></div>", unsafe_allow_html=True)
 # CONNECTION ERROR STATE
 # ============================================================================
 if not db_connected:
+    db_hint = (
+        "Make sure your cloud database is reachable."
+        if "neon.tech" in DB_URL
+        else "Make sure Docker is running (`docker compose up -d`)."
+    )
     st.error(
-        f"**Could not connect to database.** Make sure Docker is running "
-        f"(`docker compose up -d`).\n\nError: `{db_error}`"
+        f"**Could not connect to database.** {db_hint}\n\nError: `{db_error}`"
     )
     st.stop()
 
