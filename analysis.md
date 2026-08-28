@@ -1,6 +1,6 @@
 # Northwind Traders — Analysis Report (for Management)
 
-> **Prepared by:** [Your Name] — Data Analyst
+> **Prepared by:** LN - Data Analyst
 > **Date:** [Today's date]
 > **Source:** Queries in `queries.sql` run against the Northwind PostgreSQL database.
 > **Period covered:** July 1996 – May 1998 (23 months of sales).
@@ -59,6 +59,8 @@
 | Mar 1998 | $104,854 | $1,123,661 |
 | Apr 1998 | $123,799 | $1,247,459 |
 | May 1998 | $18,334 | **$1,265,793** |
+
+**Insight for management:** Revenue compounded from ~$28K (first month) to a **$1.27M** cumulative run-rate over 23 months. The strongest stretch is clearly **Q1 1998** (Jan–Apr each > $94K, peaking at $123.8K in Apr). This suggests growing demand we should plan inventory and hiring to support.
 
 ---
 
@@ -139,4 +141,3 @@
 ---
 
 *End of report.*
-**Insight for management:** Revenue compounded from ~$28K (first month) to a **\$1.27M** cumulative run-rate over 23 months. The strongest stretch is clearly **Q1 1998** (Jan–Apr each > \$94K, peaking at \$123.8K in Apr). This suggests growing demand we should plan inventory and hiring to support.

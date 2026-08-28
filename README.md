@@ -1,7 +1,10 @@
 # Northwind Traders — SQL Window Functions & CTE Project
 
-> ✅ **Status: COMPLETED** — all phases done (DB setup, exploration, window functions & CTEs, deliverables).
-> Last updated: 2026-08-28 (project finished — added `queries.sql` + `analysis.md`).
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://sql-northwind-traders-lt59fprdez8nfty83rxoz5.streamlit.app)
+> 🌐 **Live Interactive Dashboard:** [https://sql-northwind-traders-lt59fprdez8nfty83rxoz5.streamlit.app](https://sql-northwind-traders-lt59fprdez8nfty83rxoz5.streamlit.app)
+>
+> ✅ **Status: COMPLETED** — all phases done (DB setup, exploration, window functions & CTEs, analysis report, interactive dashboard).
+> Last updated: 2026-08-28.
 > See the [Status](#-status) section below for the full checklist.
 
 ## 🎯 Overview
@@ -185,161 +188,94 @@ that separates a random `SELECT` from a properly modeled analytic query.
 
 ---
 
-## 🚀 How to Run — Data Engineering Setup
+## 🚀 How to Run — Access the Project
 
-This is the **DE (Data Engineering) part** of the project: stand up the database,
-load the Northwind data, and connect your query tool of choice. Once it's running,
-you can run queries **two ways** — pick whichever fits what you're doing:
+You can interact with this project in **four ways**:
 
-| Option | Tool | Best for |
-|---|---|---|
-| **1 — pgAdmin** (web GUI) | [`http://localhost:5050`](http://localhost:5050) | Browsing schema, saving `.sql` scripts, ad-hoc inspection, ER diagrams |
-| **2 — Jupyter Notebook** (`eda-northwind-traders.ipynb`) | Local notebook (psycopg + pandas) | Exploring data, iterating on queries, seeing results as DataFrames |
+| Option | Tool | Access / Command | Best for |
+|---|---|---|---|
+| **1 — Live Cloud Dashboard** | **Streamlit Community Cloud** | 🌐 [**Open Live App**](https://sql-northwind-traders-lt59fprdez8nfty83rxoz5.streamlit.app) | **Instant access** — zero install, interactive charts & KPIs connected to Neon Cloud DB |
+| **2 — Local Dashboard** | Streamlit + Python | `streamlit run dashboard.py` | Local development & custom query tweaking |
+| **3 — pgAdmin** (web GUI) | [`http://localhost:5050`](http://localhost:5050) | `docker compose up -d` | Browsing local schema, executing ad-hoc SQL, ER diagrams |
+| **4 — Jupyter Notebook** | `eda-northwind-traders.ipynb` | `jupyter lab` (local `.venv`) | Step-by-step SQL exploration, grain validation, and DataFrame inspection |
 
-Both options point at the **same Dockerized PostgreSQL** — they don't conflict.
+---
 
-### Prerequisites
+### Option 1 — Live Interactive Dashboard (Zero Install)
 
+The analytics dashboard is deployed live on **Streamlit Community Cloud** and powered by **Neon Serverless PostgreSQL**:
+👉 **[https://sql-northwind-traders-lt59fprdez8nfty83rxoz5.streamlit.app](https://sql-northwind-traders-lt59fprdez8nfty83rxoz5.streamlit.app)**
+
+**Features:**
+- **Executive KPIs**: Total revenue ($1.27M), total orders (830), avg order value ($1,525), best month.
+- **5 Analytics Tabs**:
+  1. 👥 **Employee Performance**: Revenue ranking with dynamic ranking badges and company share %.
+  2. 📈 **Sales Growth**: Monthly revenue area chart, cumulative running total overlay, and MoM growth rate (% with +/- color coding).
+  3. 🛒 **Customer Insights**: Interactive scatter plot (order count vs avg value vs total spent) + above-average account breakdown.
+  4. 📦 **Category & Products**: Category revenue donut chart + top 3 products per category grouped bar chart.
+  5. 💡 **Recommendations**: Strategic next steps for management.
+- **Dark / Light Mode**: Integrated theme toggle with zinc palette and card-based layout.
+
+---
+
+### Option 2 — Run Dashboard Locally
+
+```bash
+# 1. Activate virtual environment
+.venv\Scripts\activate            # Windows
+# source .venv/bin/activate       # macOS / Linux
+
+# 2. Run the Streamlit dashboard
+streamlit run dashboard.py
+```
+*(Connects automatically to local Docker Postgres or Neon Cloud via secrets/environment variables).*
+
+---
+
+### Option 3 & 4 — Local Docker Database Setup (DE)
+
+#### Prerequisites
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows / Mac / Linux)
-- (Optional, for option 2) [Python 3.10+](https://www.python.org/) with `psycopg` and `pandas`
-  installed (a `.venv/` is included in this repo — activate it instead of installing globally)
+- [Python 3.10+](https://www.python.org/) (a `.venv/` is included)
 
-### Step 1 — Start the database
-
-From the project root:
-
+#### Step 1 — Start the database
 ```bash
 docker compose up -d
 ```
+This launches:
+- `northwind_db` (`postgres:17-alpine` on host port `55432`)
+- `northwind_pgadmin` (`dpage/pgadmin4` on `http://localhost:5050`)
 
-This starts **two containers** defined in `docker-compose.yml`:
-
-| Container | Image | Exposed port | Purpose |
-|---|---|---|---|
-| `northwind_db` | `postgres:17-alpine` | host `55432` → container `5432` | The PostgreSQL database (auto-seeds with `northwind.sql` on first run) |
-| `northwind_pgadmin` | `dpage/pgadmin4:latest` | host `5050` → container `80` | The pgAdmin web GUI |
-
-Connection facts (saved you from re-typing them):
-
+Connection facts:
 ```
-Host:     localhost   (from your machine)   /   db   (from inside the docker network)
-Port:     55432       (from your machine)   /   5432  (from inside the docker network)
+Host:     localhost:55432  (local) / db:5432 (inside docker)
 User:     postgres
 Password: postgres
 Database: northwind
 ```
 
-> ⚠️ On **first** startup, the `db` container executes `./northwind.sql` (mounted at
-> `/docker-entrypoint-initdb.d/`) which creates all 14 tables and loads the sample
-> data. This takes ~5–10 seconds. Subsequent startups skip this because the data
-> persists in the `postgresql_data` named volume.
+#### Step 2 — Connect via pgAdmin or Jupyter
+- **pgAdmin**: Open `http://localhost:5050` (Email: `admin@admin.com` / Password: `admin`), register server `db:5432`.
+- **Notebook**: Open `eda-northwind-traders.ipynb` in VS Code / Jupyter Lab to explore SQL interactively.
 
-Verify it's up:
-
+#### Step 3 — Stop the database
 ```bash
-docker ps
-# You should see northwind_db and northwind_pgadmin with status "Up" / "healthy"
-```
-
-### Step 2 — Connect via Option 1 (pgAdmin) **or** Option 2 (Jupyter)
-
-#### Option 1 — pgAdmin (web GUI)
-
-Open [`http://localhost:5050`](http://localhost:5050) in your browser and log in:
-
-| Field | Value |
-|---|---|
-| Email | `admin@admin.com` |
-| Password | `admin` |
-
-Then register the database server inside pgAdmin:
-
-1. Right-click **Servers** → **Register** → **Server…**
-2. **General** tab:
-   - **Name** = `db` (or anything you like — this is just a label inside pgAdmin)
-3. **Connection** tab:
-   - **Host name/address** = `db` (the Docker service name — pgAdmin is on the same network)
-   - **Port** = `5432`
-   - **Maintenance database** = `northwind`
-   - **Username** = `postgres`
-   - **Password** = `postgres`
-4. Click **Save**. You'll see the `northwind` database with 14 tables.
-
-You can now run queries: click **Tools** → **Query Tool** (or `Alt+Shift+Q`), type SQL,
-hit **F5** to execute. Save queries as `.sql` files for the `queries.sql` deliverable.
-
-#### Option 2 — Jupyter Notebook
-
-The notebook `eda-northwind-traders.ipynb` connects to the same database via `psycopg`.
-The connection cell uses these credentials:
-
-```python
-CONN = psycopg.connect(
-    "postgresql://postgres:postgres@localhost:55432/northwind",
-    autocommit=True,
-)
-```
-
-Note the host is `localhost:55432` here — the notebook runs **on your machine**,
-so it goes through the published port (not the internal Docker network name `db`).
-
-To use it:
-
-```bash
-# 1. Activate the project's venv (already created)
-.venv\Scripts\activate            # Windows (PowerShell or CMD)
-source .venv/bin/activate         # macOS / Linux
-
-# 2. Start Jupyter
-jupyter lab                       # or: jupyter notebook
-```
-
-Then open `eda-northwind-traders.ipynb`, run the cells, and edit the SQL inside
-the `run_query("""...""")` helpers. Results come back as pandas DataFrames.
-
-> 💡 **Which should I pick?** pgAdmin for "I know what I want to query, give me
-> a SQL editor." Notebook for "I want to see results as a DataFrame, plot them,
-> iterate quickly without leaving Python."
-
-### Step 3 — Stop the database
-
-```bash
-docker compose down
-```
-
-This stops both containers. **Data is preserved** (it lives in the `postgresql_data`
-named volume, not inside the container).
-
-To stop **and** wipe the data (start fresh next time):
-
-```bash
-docker compose down -v
+docker compose down      # keeps data
+docker compose down -v   # wipes and resets data
 ```
 
 ---
 
 ## 🧰 Tech Stack
 
-| Layer | Tool |
-|-------|------|
-| Database | PostgreSQL 17 (Docker image `postgres:17-alpine`) |
-| Containers | Docker + Docker Compose |
-| GUI (manage DB) | pgAdmin 4 (`http://localhost:5050`) — browse schema, save `.sql` |
-| Exploration | Jupyter Notebook + `psycopg` + `pandas` (port `55432`) |
-| CLI | `psql` inside the container |
-
-> 👉 For step-by-step setup (how to start the containers, register the server in
-> pgAdmin, connect the notebook), see the
-> [**How to Run — Data Engineering Setup**](#-how-to-run--data-engineering-setup)
-> section above.
-
-## 🧭 Workflow Split
-
-- **pgAdmin** is for *managing* the database (browsing tables, the ER diagram,
-  saving `.sql` scripts, ad-hoc inspection).
-- **Jupyter notebook** (`eda-northwind-traders.ipynb`) is for *exploring* the data:
-  write SQL inside Python cells, get results as pandas DataFrames, iterate quickly.
-- Both point at the **same Dockerized PostgreSQL** — they don't conflict.
+| Layer | Tool | Purpose |
+|-------|------|---------|
+| **Live Dashboard** | Streamlit + Plotly | Interactive web app with 5 analytical views and dark/light UI |
+| **Cloud Database** | Neon Serverless PostgreSQL | Hosted PostgreSQL (AWS US-East-2) powering the live cloud app |
+| **Local Database** | PostgreSQL 17 (`postgres:17-alpine`) | Local containerized database auto-seeded on first run |
+| **Containers** | Docker + Docker Compose | Isolated multi-container environment (PostgreSQL + pgAdmin) |
+| **GUI Tool** | pgAdmin 4 | Database browsing and ad-hoc query execution |
+| **Exploration** | Jupyter Notebook + `psycopg` + `pandas` | Interactive data exploration and grain verification |
 
 ---
 
@@ -347,29 +283,32 @@ docker compose down -v
 
 ```
 sql-northwind-traders/
-├── README.md               # This portfolio summary
-├── docker-compose.yml      # PostgreSQL + pgAdmin containers (from source repo)
-├── northwind.sql           # Schema + sample data seed script (from source repo)
-├── exploration.ipynb       # (legacy) early exploration notebook (psycopg + pandas)
-├── eda-northwind-traders.ipynb  # Active notebook — exploration + grain + analytic queries
-├── img/
-│   └── schema-northwind-traders.png   # ER diagram
-├── queries.sql             # [Final deliverable] explained queries (window fns + CTEs)
-└── analysis.md             # [Final deliverable] insights written for management
+├── README.md                    # Project documentation & live links
+├── dashboard.py                 # Streamlit analytics dashboard (5 tabs, dark/light mode)
+├── requirements.txt             # Python dependencies for cloud deployment
+├── queries.sql                  # Final analytical SQL queries (window fns + CTEs)
+├── analysis.md                  # Comprehensive management report & findings
+├── plan.md                      # Problem-first project roadmap
+├── diary.md                     # Engineering & analysis learning log
+├── eda-northwind-traders.ipynb  # Interactive data exploration notebook
+├── docker-compose.yml           # Multi-container PostgreSQL + pgAdmin stack
+├── northwind.sql                # Complete schema & sample data seed script
+├── .agents/skills/              # Neon database & agent skill integrations
+└── img/
+    ├── schema-northwind-traders.png # 3NF Normalized Schema Diagram
+    ├── erd-northwind.png            # Fact/Dimension Star/Snowflake ERD
+    └── erd-northwind.mmd            # Mermaid source for dimensional ERD
 ```
 
 ---
 
 ## 🧭 How We Built It — The Process
 
-1. **Plan (problem-first):** Defined the four business questions before writing any SQL
-   (`plan.md`).
-2. **Set up the database (DE):** Used Docker Compose to run PostgreSQL, auto-seeded
-   with Northwind data, and explored the schema (tables, keys, relationships).
-3. **Query & analyze (DA):** Progressed from SQL basics (JOINs, GROUP BY) to advanced
-   **window functions and CTEs** — ranking, running totals, moving averages, and growth
-   with `LAG`/`LEAD` — each mapped to a real business question.
+1. **Plan (problem-first):** Defined the four business questions before writing any SQL (`plan.md`).
+2. **Set up the database (DE):** Used Docker Compose for local PostgreSQL and Neon for serverless cloud PostgreSQL.
+3. **Query & analyze (DA):** Progressed from SQL basics to advanced **window functions and CTEs** (`RANK`, `SUM OVER`, `AVG OVER`, `LAG`, `ROW_NUMBER`).
 4. **Deliver insights:** Documented findings in `analysis.md` as a report to management.
+5. **Interactive Dashboard:** Built and deployed a production-grade **Streamlit** dashboard on the cloud with live database connectivity.
 
 ---
 
@@ -379,9 +318,9 @@ sql-northwind-traders/
 - Window functions:
   - `ROW_NUMBER()`, `RANK()`, `DENSE_RANK()` — ranking
   - `SUM() OVER (PARTITION BY ...)` — running totals & category shares
-  - `AVG() OVER (ORDER BY ... ROWS BETWEEN ...)` — moving averages
-  - `LAG()` / `LEAD()` — month-over-month growth & forecasts
-- Combining multiple window functions with CTEs for complex analysis.
+  - `AVG() OVER ()` — comparing individual rows against global benchmarks
+  - `LAG()` / `LEAD()` — month-over-month growth rates & trend analysis
+- Combining multiple window functions with CTEs for multi-stage analytics.
 
 ---
 
@@ -393,10 +332,12 @@ sql-northwind-traders/
 |-------|-------------|--------|
 | Plan | `plan.md` | ✅ Done |
 | Diary | `diary.md` | ✅ Done |
-| DB setup | Containers running, schema + data loaded | ✅ Done (14 tables; see diary) |
+| DB setup (Local) | Docker Compose (PostgreSQL 17 + pgAdmin 4) | ✅ Done |
+| DB setup (Cloud) | Neon Serverless PostgreSQL (Ohio) | ✅ Done |
 | Exploration | `eda-northwind-traders.ipynb` | ✅ Done |
 | Core queries | `queries.sql` | ✅ Done |
 | Final insights | `analysis.md` | ✅ Done |
+| Interactive Dashboard | `dashboard.py` + Streamlit Community Cloud | ✅ [Live](https://sql-northwind-traders-lt59fprdez8nfty83rxoz5.streamlit.app) |
 | Repository | Initialized + pushed to GitHub | ✅ Done |
 
 ---
@@ -405,5 +346,5 @@ sql-northwind-traders/
 
 - Northwind for PostgreSQL (DB seed): https://github.com/pthom/northwind_psql
 - PostgreSQL window functions: https://www.postgresql.org/docs/current/tutorial-window.html
-
----
+- Neon Serverless Postgres: https://neon.tech
+- Streamlit Community Cloud: https://streamlit.io/cloud

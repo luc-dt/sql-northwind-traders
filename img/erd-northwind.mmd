@@ -1,0 +1,152 @@
+---
+config:
+  theme: base
+  themeVariables:
+    primaryColor: "#e8f5e9"
+    primaryBorderColor: "#2e7d32"
+    primaryTextColor: "#1b1b1b"
+    lineColor: "#37474f"
+    fontFamily: "Segoe UI, Arial, sans-serif"
+    fontSize: "15px"
+  er:
+    fontSize: 15
+---
+erDiagram
+    %% ============ FACTS (F) ============
+    orders["orders (F)"] {
+        smallint order_id PK
+        varchar customer_id FK
+        smallint employee_id FK
+        date order_date
+        date required_date
+        date shipped_date
+        smallint ship_via FK
+        real freight
+        varchar ship_name
+        varchar ship_address
+        varchar ship_city
+        varchar ship_region
+        varchar ship_postal_code
+        varchar ship_country
+    }
+    order_details["order_details (F)"] {
+        smallint order_id PK, FK
+        smallint product_id PK, FK
+        real unit_price
+        smallint quantity
+        real discount
+    }
+
+    %% ============ DIMENSIONS (D) ============
+    customers["customers (D)"] {
+        varchar customer_id PK
+        varchar company_name
+        varchar contact_name
+        varchar contact_title
+        varchar address
+        varchar city
+        varchar region
+        varchar postal_code
+        varchar country
+        varchar phone
+        varchar fax
+    }
+    employees["employees (D)"] {
+        smallint employee_id PK
+        varchar last_name
+        varchar first_name
+        varchar title
+        varchar title_of_courtesy
+        date birth_date
+        date hire_date
+        varchar address
+        varchar city
+        varchar region
+        varchar postal_code
+        varchar country
+        varchar home_phone
+        varchar extension
+        bytea photo
+        text notes
+        smallint reports_to FK
+        varchar photo_path
+    }
+    products["products (D)"] {
+        smallint product_id PK
+        varchar product_name
+        smallint supplier_id FK
+        smallint category_id FK
+        varchar quantity_per_unit
+        real unit_price
+        smallint units_in_stock
+        smallint units_on_order
+        smallint reorder_level
+        integer discontinued
+    }
+    categories["categories (D)"] {
+        smallint category_id PK
+        varchar category_name
+        text description
+        bytea picture
+    }
+    suppliers["suppliers (D)"] {
+        smallint supplier_id PK
+        varchar company_name
+        varchar contact_name
+        varchar contact_title
+        varchar address
+        varchar city
+        varchar region
+        varchar postal_code
+        varchar country
+        varchar phone
+        varchar fax
+        text homepage
+    }
+    shippers["shippers (D)"] {
+        smallint shipper_id PK
+        varchar company_name
+        varchar phone
+    }
+    territories["territories (D)"] {
+        varchar territory_id PK
+        varchar territory_description
+        smallint region_id FK
+    }
+    region["region (D)"] {
+        smallint region_id PK
+        varchar region_description
+    }
+    employee_territories["employee_territories (D)"] {
+        smallint employee_id PK, FK
+        varchar territory_id PK, FK
+    }
+    customer_customer_demo["customer_customer_demo (D)"] {
+        varchar customer_id PK, FK
+        varchar customer_type_id PK, FK
+    }
+    customer_demographics["customer_demographics (D)"] {
+        varchar customer_type_id PK
+        text customer_desc
+    }
+    us_states["us_states (D)"] {
+        smallint state_id PK
+        varchar state_name
+        varchar state_abbr
+        varchar state_region
+    }
+
+    %% ============ RELATIONSHIPS ============
+    customers ||--o{ orders : "places"
+    employees ||--o{ orders : "takes"
+    shippers ||--o{ orders : "ships"
+    orders ||--o{ order_details : "contains"
+    products ||--o{ order_details : "sold in"
+    categories ||--o{ products : "groups"
+    suppliers ||--o{ products : "supplies"
+    region ||--o{ territories : "contains"
+    territories ||--o{ employee_territories : "assigned via"
+    employees ||--o{ employee_territories : "covers"
+    employees ||--o{ employees : "reports to"
+    customers ||--o{ customer_customer_demo : "typed as"
+    customer_demographics ||--o{ customer_customer_demo : "describes"

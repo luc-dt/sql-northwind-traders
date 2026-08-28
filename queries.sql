@@ -157,7 +157,7 @@ WITH CategorySales AS (
     SELECT
         c.category_id,
         c.category_name,
-        SUM(p.unit_price * quantity * (1 - discount)) AS "Total Sales"
+        SUM(od.unit_price * od.quantity * (1 - od.discount)) AS "Total Sales"
     FROM categories c
         INNER JOIN products p       ON c.category_id = p.Category_ID
         INNER JOIN order_details od ON p.product_id = od.product_id
@@ -190,7 +190,7 @@ WITH ProductSales AS (
         p.category_id,
         p.product_id,
         p.product_name,
-        SUM(p.unit_price * quantity * (1 - discount)) AS "Total Sales"
+        SUM(od.unit_price * od.quantity * (1 - od.discount)) AS "Total Sales"
     FROM products p
         INNER JOIN order_details od ON p.product_id = od.product_id
     GROUP BY p.category_id, p.product_id
